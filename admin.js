@@ -1,7 +1,7 @@
 // Function to check the password
 function checkPassword() {
   const enteredPassword = document.getElementById('passwordInput').value.trim();
-  const adminPassword = 'bravobravo';  // Replace with correct password
+  const adminPassword = '12345';  // Replace with correct password
 
   if (enteredPassword === adminPassword) {
     // Set login status in localStorage
