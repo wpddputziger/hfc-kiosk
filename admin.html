@@ -92,10 +92,13 @@
   <script>
     // Function to check the password
     function checkPassword() {
-      const password = document.getElementById('passwordInput').value;
+      const enteredPassword = document.getElementById('passwordInput').value;
       const adminPassword = 'yourpassword';  // Change to your desired password
 
-      if (password === adminPassword) {
+      console.log('Entered Password:', enteredPassword); // Debugging the entered password
+      console.log('Stored Password:', adminPassword);    // Debugging the stored password
+
+      if (enteredPassword === adminPassword) {
         // Show the admin page and hide the password prompt
         document.getElementById('adminPage').style.display = 'block';
         document.getElementById('passwordPrompt').style.display = 'none';
