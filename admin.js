@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
-  const token = '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'; // <-- Insert your GitHub token here
+  const token = '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'; // <-- Insert your GitHub token here
   const filePath = 'playlists.json';
   const repo = 'wpddputziger/hfc-kiosk';
   let playlists = [];
