@@ -1,7 +1,7 @@
 // Function to check the password
 function checkPassword() {
   const enteredPassword = document.getElementById('passwordInput').value.trim(); // Trim extra spaces
-  const adminPassword = 'yourpassword';  // Change to your desired password
+  const adminPassword = '12345';  // Change to your desired password
 
   console.log('Entered Password:', enteredPassword); // Debugging the entered password
   console.log('Stored Password:', adminPassword);    // Debugging the stored password
