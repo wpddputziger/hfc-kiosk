@@ -77,19 +77,35 @@ document.addEventListener('DOMContentLoaded', function () {
   async function commitToGitHub() {
     const apiUrl = `https://api.github.com/repos/${repo}/contents/${filePath}`;
 
+    // Step 1: Fetch the current file details to get the sha
+    console.log('Fetching file data...');
     const getRes = await fetch(apiUrl, {
-      headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json' }
+      headers: { 'Authorization': `Bearer ${token}`, Accept: 'application/vnd.github+json' }
     });
+
+    // Log the response to check for issues
     const data = await getRes.json();
-    const sha = data.sha;
+    console.log('Response data from GitHub:', data);
 
+    if (getRes.status !== 200) {
+      console.error('Error fetching file data:', data);
+      alert(`Error fetching file data: ${data.message}`);
+      return;
+    }
+
+    const sha = data.sha;  // Get the sha for the existing file
+    console.log('SHA fetched:', sha);
+
+    // Step 2: Base64 encode the content
     const content = btoa(unescape(encodeURIComponent(JSON.stringify(playlists, null, 2))));
+    console.log('Encoded content:', content);
 
+    // Step 3: Commit the changes
     const commitRes = await fetch(apiUrl, {
       method: 'PUT',
       headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: 'application/vnd.github+json',
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/vnd.github+json',
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
@@ -99,10 +115,14 @@ document.addEventListener('DOMContentLoaded', function () {
       })
     });
 
+    const commitData = await commitRes.json();
+    console.log('Commit Response:', commitData);
+
     if (commitRes.ok) {
       alert('Successfully committed to GitHub!');
     } else {
-      alert('Failed to commit changes. Check token and permissions.');
+      console.error('Commit Error:', commitData);
+      alert(`Failed to commit changes: ${commitData.message || commitData.errors}`);
     }
   }
 
