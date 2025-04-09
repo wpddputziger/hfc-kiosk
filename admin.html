@@ -5,22 +5,43 @@
   <title>HFC Kiosk Admin CMS</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    /* Your existing styles here */
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: #f5f5f5;
+      color: #333;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 30px;
+    }
     #adminPage {
       display: none;  /* Initially hidden */
     }
     #passwordPrompt {
       display: block; /* Initially visible */
     }
+    button {
+      padding: 10px 20px;
+      margin: 10px 10px 0 0;
+      font-size: 1em;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #passwordPrompt button {
+      background-color: #0099A8;
+      color: white;
+    }
   </style>
 </head>
 <body>
+
+  <!-- Password prompt section -->
   <div id="passwordPrompt">
     <p>Please enter the admin password:</p>
     <button onclick="checkPassword()">Enter Password</button>
   </div>
 
-  <!-- Admin Page content will be shown only after password is entered -->
+  <!-- Admin interface (will be shown after password is correct) -->
   <div id="adminPage">
     <header>
       <img src="https://www.wheelinghealthfitness.center/wp-content/themes/wpd-hfc-auto/assets/media/logo.svg" alt="HFC Logo" />
