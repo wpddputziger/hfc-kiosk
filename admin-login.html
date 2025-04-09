@@ -3,70 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <title>HFC Admin Login</title>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Montserrat', sans-serif;
-      background: #f5f5f5;
-      color: #333;
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 30px;
-    }
-
-    #loginForm {
-      display: block;
-      text-align: center;
-      padding: 20px;
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      margin-top: 50px;
-    }
-
-    #loginForm input[type="password"] {
-      padding: 10px;
-      font-size: 1em;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-
-    button {
-      padding: 10px 20px;
-      margin-top: 10px;
-      background-color: #0099A8;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-  </style>
+  <link rel="stylesheet" href="admin.css">
 </head>
 <body>
-
   <div id="loginForm">
     <h2>Admin Login</h2>
     <input type="password" id="passwordInput" placeholder="Enter password" />
     <button onclick="checkPassword()">Log In</button>
   </div>
 
-  <script>
-    function checkPassword() {
-      const enteredPassword = document.getElementById('passwordInput').value.trim();
-      const adminPassword = 'bravobravo';  // Replace with correct password
+  <footer>
+    <p>Version: 1.1.24</p>
+  </footer>
 
-      if (enteredPassword === adminPassword) {
-        // Store login status in localStorage
-        localStorage.setItem('isLoggedIn', 'true');
-        // Redirect to admin console page
-        window.location.href = 'admin-console.html';
-      } else {
-        alert('Incorrect password!');
-      }
-    }
-  </script>
-
+  <script src="admin.js"></script>
 </body>
 </html>
