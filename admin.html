@@ -18,6 +18,9 @@
       align-items: center;
       justify-content: space-between;
       margin-bottom: 30px;
+      background-color: #606261;
+      padding: 15px;
+      border-radius: 8px;
     }
     .logo-title {
       display: flex;
@@ -25,10 +28,10 @@
       gap: 20px;
     }
     header img {
-      height: 80px;
+      height: 60px;
     }
     header h1 {
-      color: #0099A8;
+      color: #fff;
       margin: 0;
     }
     .playlist-entry {
@@ -43,16 +46,17 @@
       font-weight: bold;
     }
     .playlist-entry input[type="text"] {
-      width: 100%;
-      padding: 8px;
+      width: 80%;
+      padding: 6px;
       margin: 6px 0 10px;
       border: 1px solid #ccc;
       border-radius: 4px;
     }
     .controls {
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-start;
       align-items: center;
+      gap: 20px;
     }
     .controls label {
       font-weight: normal;
@@ -97,9 +101,9 @@
 </head>
 <body>
   <div id="loginOverlay">
-    <h2>Enter GitHub Token</h2>
-    <input type="password" id="tokenInput" placeholder="Paste your GitHub token">
-    <button onclick="submitToken()">Login</button>
+    <h2>Enter Admin Password</h2>
+    <input type="password" id="passwordInput" placeholder="Enter password">
+    <button onclick="submitPassword()">Login</button>
   </div>
 
   <header>
@@ -117,7 +121,8 @@
 
   <script>
     let playlists = [];
-    let token = '';
+    let token = localStorage.getItem('gh_token') || '';
+    const hardcodedPassword = 'hfcadmin';
 
     async function fetchPlaylists() {
       const res = await fetch('playlists.json');
@@ -157,8 +162,19 @@
     }
 
     function addEntry() {
-      playlists.push({ title: '', id: '', default: false, visible: true });
-      renderForm();
+      if (playlists.length >= 12) return alert('Maximum of 12 playlists allowed.');
+      const url = prompt('Enter YouTube Playlist URL:');
+      const match = url.match(/[?&]list=([a-zA-Z0-9_-]+)/);
+      if (!match) return alert('Invalid playlist URL.');
+      const playlistId = match[1];
+      fetch(`https://www.googleapis.com/youtube/v3/playlists?part=snippet&id=${playlistId}&key=AIzaSyBXOnPb8MKxBE1pT6SYvdQdX_87350Nk9g`)
+        .then(res => res.json())
+        .then(data => {
+          if (!data.items || !data.items.length) return alert('Playlist not found or not public.');
+          const title = data.items[0].snippet.title;
+          playlists.push({ title, id: playlistId, default: false, visible: true });
+          renderForm();
+        });
     }
 
     function deleteEntry(index) {
@@ -170,16 +186,21 @@
 
     function logout() {
       token = '';
+      localStorage.removeItem('gh_token');
       document.getElementById('loginOverlay').style.display = 'flex';
     }
 
-    function submitToken() {
-      token = document.getElementById('tokenInput').value.trim();
-      if (token.length > 30) {
-        document.getElementById('loginOverlay').style.display = 'none';
-        fetchPlaylists();
+    function submitPassword() {
+      const entered = document.getElementById('passwordInput').value.trim();
+      if (entered === hardcodedPassword) {
+        token = prompt('Enter GitHub Token (only shown once):');
+        if (token) {
+          localStorage.setItem('gh_token', token);
+          document.getElementById('loginOverlay').style.display = 'none';
+          fetchPlaylists();
+        }
       } else {
-        alert('Invalid token');
+        alert('Incorrect password.');
       }
     }
 
