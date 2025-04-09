@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
   // OAuth2 GitHub details (replace with your actual values)
   const clientId = 'Ov23liJNJhwGOI4gLxrC';  // Replace with your GitHub OAuth Client ID
-  const redirectUri = 'https://wpddputziger.github.io/hfc-kiosk/callback';  // Replace with your redirect URI
+  const redirectUri = 'https://wpddputziger.github.io/hfc-kiosk/admin.html';  // Replace with your redirect URI
 
   let playlists = [];
 
