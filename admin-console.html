@@ -1,27 +1,27 @@
+<!-- admin-console.html | v1.1.25 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>HFC Kiosk Admin CMS</title>
+  <title>HFC Kiosk Admin Console (Minimal)</title>
   <link rel="stylesheet" href="admin.css">
 </head>
 <body>
-  <div id="adminPage">
-    <header>
-      <img src="https://raw.githubusercontent.com/wpddputziger/hfc-kiosk/main/logo.svg" alt="HFC Logo" />
-      <h1>HFC Kiosk Admin</h1>
-      <button id="logoutBtn" onclick="logout()">Log Out</button>
-    </header>
 
-    <div id="playlistContainer"></div>
-    <button id="addBtn" onclick="addEntry()">+ Add Playlist</button>
-    <button id="saveBtn" onclick="commitToGitHub()">Save to GitHub</button>
-    <button id="downloadBtn" onclick="downloadJSON()">Download JSON</button>
+  <header>
+    <img src="logo.svg" alt="HFC Logo" />
+    <h1>HFC Kiosk Admin</h1>
+    <button onclick="logout()">Log Out</button>
+  </header>
 
-    <footer>
-      <p>Version: 1.1.24</p>
-    </footer>
+  <div id="playlistContainer">
+    <!-- This is where admin content or future playlist data might go -->
+    <p>Welcome to the minimal admin console page!</p>
   </div>
+
+  <footer>
+    <p>Version: 1.1.25</p>
+  </footer>
 
   <script src="admin.js"></script>
 </body>
