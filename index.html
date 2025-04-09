@@ -1,274 +1,24 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Video Browser v1.1.7</title>
   <meta charset="UTF-8">
-  <!-- Include Montserrat font for the header title -->
+  <title>HFC Video Kiosk v1.1.21</title>
+  <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Load YouTube IFrame API -->
   <script src="https://www.youtube.com/iframe_api"></script>
-  <style>
-    /* Use full viewport height and prevent scrolling */
-    html, body {
-      height: 100%;
-      overflow: hidden;
-      margin: 0;
-      padding: 0;
-    }
-    /* HEADER: occupies top 15vh */
-    header {
-      height: 15vh;
-      background-color: #606261;
-      padding: 0 15px;
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      box-sizing: border-box;
-    }
-    /* Header Left: Logo with extra top margin */
-    #header-left {
-      flex: 1;
-      display: flex;
-      align-items: flex-start;
-      padding-top: 5px; /* extra margin */
-      padding-left: 10px;
-    }
-    #header-left .logo {
-      max-height: 80px;
-    }
-    /* Header Center: Title and Playlist Buttons */
-    #header-center {
-      flex: 2;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      margin: 2px 0;
-    }
-    #header-center h2 {
-      margin: 2px 0 10px;
-      color: #fff;
-      font-family: 'Montserrat', sans-serif;
-      font-weight: 400;
-      font-size: 1.8em;
-      text-transform: none;
-    }
-    /* Horizontal scroll for playlist buttons */
-    #playlistScrollContainer {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      max-width: 80%;
-      overflow: hidden;
-      margin: 0 auto;
-    }
-    /* Scroll arrows: hidden unless needed */
-    #scrollLeft, #scrollRight {
-      background-color: transparent;
-      border: none;
-      color: #fff;
-      font-size: 2em;
-      cursor: pointer;
-      padding: 5px 10px;
-      display: none;
-    }
-    /* Container for playlist buttons */
-    #playlistButtons {
-      display: flex;
-      gap: 10px;
-      overflow-x: auto;
-      scroll-behavior: smooth;
-      -webkit-overflow-scrolling: touch;
-    }
-    #playlistButtons::-webkit-scrollbar { display: none; }
-    .playlist-buttons button {
-      background-color: #fff;
-      border: 2px solid #606261;
-      border-radius: 4px;
-      font-size: 1.3em;
-      font-weight: bold;
-      padding: 8px 16px;
-      cursor: pointer;
-      color: #606261;
-      transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
-      flex: none;
-    }
-    .playlist-buttons button:hover,
-    .playlist-buttons button.active {
-      background-color: #0099A8;
-      color: #fff;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-    }
-    /* Header Right: Utilities */
-    #header-right {
-      flex: 1;
-      display: flex;
-      justify-content: flex-end;
-      align-items: flex-start;
-      gap: 10px;
-      padding-top: 5px;
-      padding-right: 10px;
-    }
-    #header-right button {
-      background-color: transparent;
-      border: none;
-      color: #fff;
-      font-size: 1.5em;
-      cursor: pointer;
-      padding: 5px 10px;
-    }
-    @media (max-width: 600px) {
-      #header-right button { font-size: 1.2em; }
-    }
-    /* MAIN CONTENT: occupies remaining 85vh */
-    .main-content {
-      height: 85vh;
-      display: flex;
-      gap: 20px;
-      padding: 10px 15px;
-      box-sizing: border-box;
-    }
-    /* Left Column: Video Player (anchored bottom left) */
-    .video-player {
-      flex: 2;
-      min-width: 300px;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      position: relative;
-      margin-bottom: 5px;
-    }
-    #videoFrame {
-      width: 100%;
-      height: 100%;
-      max-height: 100%;
-      border: none;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    }
-    /* Video Placeholder */
-    #videoPlaceholder {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      cursor: pointer;
-      z-index: 100;
-      display: none;
-      transition: opacity 0.3s ease;
-    }
-    /* Remove Fullscreen Tooltip entirely */
-    /* Right Column: Playlist Container (anchored bottom right) */
-    .playlist-container {
-      flex: 1;
-      min-width: 250px;
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      border: 2px solid #606261;
-      border-radius: 4px;
-      overflow: hidden;
-    }
-    /* Video List: scrollable area */
-    .video-list {
-      flex: 1;
-      background-color: #fff;
-      padding: 10px;
-      overflow-y: auto;
-      font-size: 1.3em;
-    }
-    .video-list ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    .video-item {
-      display: flex;
-      align-items: center;
-      padding: 10px;
-      margin-bottom: 8px;
-      border-bottom: 1px solid #ddd;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-    .video-item:last-child { border-bottom: none; }
-    .video-item img {
-      width: 80px;
-      height: auto;
-      margin-right: 10px;
-      border-radius: 4px;
-    }
-    .video-item:hover { background-color: #f0f0f0; }
-    .video-item.active {
-      background-color: #0099A8;
-      color: #fff;
-    }
-    #loadingIndicator {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 1.2em;
-      color: #0099A8;
-      display: none;
-    }
-    /* Playback Controls: anchored at bottom of playlist container */
-    .playback-controls {
-      background-color: #606261;
-      padding: 10px 0;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      margin-top: auto;
-    }
-    .playback-controls button {
-      background-color: transparent;
-      border: none;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      color: #0099A8; /* main teal */
-      transition: color 0.3s;
-    }
-    .playback-controls button:hover {
-      color: #789904; /* change to green on hover */
-    }
-    .playback-controls button svg {
-      width: 60px;
-      height: 60px;
-      margin-bottom: 5px;
-    }
-    .playback-controls button span {
-      font-size: 1em;
-      font-weight: bold;
-      color: #fff;
-    }
-    @media (min-width: 768px) {
-      #videoFrame { height: 100%; }
-      .playlist-buttons button { font-size: 1.2em; padding: 12px 25px; }
-    }
-  </style>
 </head>
 <body>
   <!-- HEADER -->
   <header>
     <div id="header-left">
-      <img src="https://www.wheelinghealthfitness.center/wp-content/themes/wpd-hfc-auto/assets/media/logo.svg" alt="Health and Fitness Center Logo" class="logo">
+      <img src="https://www.wheelinghealthfitness.center/wp-content/themes/wpd-hfc-auto/assets/media/logo.svg" alt="HFC Logo" class="logo">
     </div>
     <div id="header-center">
       <h2>Select a Playlist</h2>
       <div id="playlistScrollContainer">
         <button id="scrollLeft">&lt;</button>
-        <div class="playlist-buttons" id="playlistButtons">
-          <button data-playlist="PLRdkgOpCgKLCHW0LepxgvtZhCPAKpA_ph">Barre</button>
-          <button data-playlist="PLRdkgOpCgKLAMNCxMO2C1_UqUJWOxhfFG">Full Body</button>
-          <button data-playlist="PLRdkgOpCgKLDpQ0yMrjs_UG0YgYkR7vKl">Cardio HIIT</button>
-        </div>
+        <div class="playlist-buttons" id="playlistButtons"></div>
         <button id="scrollRight">&gt;</button>
       </div>
     </div>
@@ -278,15 +28,13 @@
       <button id="reloadPage">⟳ Reload</button>
     </div>
   </header>
-  
+
   <!-- MAIN CONTENT -->
   <div class="main-content">
-    <!-- Left Column: Video Player -->
     <div class="video-player">
       <div id="videoFrame"></div>
       <img id="videoPlaceholder" src="" alt="Video Thumbnail">
     </div>
-    <!-- Right Column: Playlist Container -->
     <div class="playlist-container">
       <div class="video-list">
         <div id="loadingIndicator">Loading...</div>
@@ -294,243 +42,22 @@
       </div>
       <div class="playback-controls">
         <button id="rewindBtn">
-          <svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
-            <polygon points="40,10 20,30 40,50" fill="currentColor"/>
-            <polygon points="30,10 10,30 30,50" fill="currentColor"/>
-          </svg>
+          <svg viewBox="0 0 60 60"><polygon points="40,10 20,30 40,50"/><polygon points="30,10 10,30 30,50"/></svg>
           <span>Rewind</span>
         </button>
         <button id="playPauseBtn">
-          <svg id="playIcon" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
-            <polygon points="20,10 50,30 20,50" fill="currentColor"/>
-          </svg>
-          <svg id="pauseIcon" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" style="display:none;">
-            <rect x="15" y="10" width="8" height="40" rx="2" ry="2" fill="currentColor"/>
-            <rect x="37" y="10" width="8" height="40" rx="2" ry="2" fill="currentColor"/>
-          </svg>
+          <svg id="playIcon" viewBox="0 0 60 60"><polygon points="20,10 50,30 20,50"/></svg>
+          <svg id="pauseIcon" viewBox="0 0 60 60" style="display:none;"><rect x="15" y="10" width="8" height="40"/><rect x="37" y="10" width="8" height="40"/></svg>
           <span id="playPauseText">Play</span>
         </button>
         <button id="skipBtn">
-          <svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
-            <polygon points="20,10 40,30 20,50" fill="currentColor"/>
-            <polygon points="30,10 50,30 30,50" fill="currentColor"/>
-          </svg>
+          <svg viewBox="0 0 60 60"><polygon points="20,10 40,30 20,50"/><polygon points="30,10 50,30 30,50"/></svg>
           <span>Skip</span>
         </button>
       </div>
     </div>
   </div>
-  
-  <script>
-    // --- Playlist Buttons Scrolling ---
-    const playlistButtonsDiv = document.getElementById('playlistButtons');
-    const scrollLeftBtn = document.getElementById('scrollLeft');
-    const scrollRightBtn = document.getElementById('scrollRight');
-    function checkPlaylistScroll() {
-      if (playlistButtonsDiv.scrollWidth <= playlistButtonsDiv.clientWidth) {
-        scrollLeftBtn.style.display = 'none';
-        scrollRightBtn.style.display = 'none';
-      } else {
-        scrollLeftBtn.style.display = 'block';
-        scrollRightBtn.style.display = 'block';
-      }
-    }
-    scrollLeftBtn.addEventListener('click', () => {
-      playlistButtonsDiv.scrollBy({ left: -150, behavior: 'smooth' });
-    });
-    scrollRightBtn.addEventListener('click', () => {
-      playlistButtonsDiv.scrollBy({ left: 150, behavior: 'smooth' });
-    });
-    window.addEventListener('load', checkPlaylistScroll);
-    window.addEventListener('resize', checkPlaylistScroll);
-    
-    // --- YouTube API Setup ---
-    const API_KEY = 'AIzaSyBXOnPb8MKxBE1pT6SYvdQdX_87350Nk9g';
-    let player;
-    let currentPlaylistItems = [];
-    function onYouTubeIframeAPIReady() {
-      player = new YT.Player('videoFrame', {
-        height: '315',
-        width: '100%',
-        videoId: '',
-        playerVars: { 'rel': 0, 'modestbranding': 1, 'playsinline': 0 },
-        events: { 'onStateChange': onPlayerStateChange }
-      });
-    }
-    
-    // --- Playback Controls ---
-    function updatePlayPauseButton() {
-      if (!player || typeof player.getPlayerState !== 'function') return;  // safeguard
-      const playIcon = document.getElementById('playIcon');
-      const pauseIcon = document.getElementById('pauseIcon');
-      const text = document.getElementById('playPauseText');
-      const state = player.getPlayerState();
-      if (state === YT.PlayerState.PLAYING) {
-        playIcon.style.display = 'none';
-        pauseIcon.style.display = 'block';
-        text.innerText = 'Pause';
-      } else {
-        pauseIcon.style.display = 'none';
-        playIcon.style.display = 'block';
-        text.innerText = 'Play';
-      }
-    }
-    
-    function onPlayerStateChange(event) {
-      updatePlayPauseButton();
-      if (event.data === YT.PlayerState.PLAYING) {
-        document.getElementById('videoPlaceholder').style.display = 'none';
-      }
-    }
-    
-    function cueVideo(videoId, thumbnail) {
-      if (player && typeof player.cueVideoById === 'function') {
-        player.cueVideoById(videoId);
-      }
-      const placeholder = document.getElementById('videoPlaceholder');
-      if (placeholder) {
-        placeholder.src = thumbnail;
-        placeholder.style.display = 'block';
-      }
-      updatePlayPauseButton();
-    }
-    
-    document.getElementById('videoPlaceholder').addEventListener('click', () => {
-      if (player && typeof player.playVideo === 'function') {
-        player.playVideo();
-      }
-      document.getElementById('videoPlaceholder').style.display = 'none';
-      updatePlayPauseButton();
-    });
-    
-    // --- Load Playlist Items ---
-    const plButtons = document.querySelectorAll('.playlist-buttons button');
-    const playlistItemsElement = document.getElementById('playlistItems');
-    const loadingIndicator = document.getElementById('loadingIndicator');
-    function loadPlaylistItems(playlistId) {
-      playlistItemsElement.innerHTML = '';
-      currentPlaylistItems = [];
-      loadingIndicator.style.display = 'block';
-      const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${playlistId}&key=${API_KEY}`;
-      fetch(url)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error(`HTTP error ${response.status}`);
-          }
-          return response.json();
-        })
-        .then(data => {
-          loadingIndicator.style.display = 'none';
-          if (data.error) {
-            playlistItemsElement.innerHTML = `<li>Error ${data.error.code}: ${data.error.message}</li>`;
-            return;
-          }
-          if (!data.items || data.items.length === 0) {
-            playlistItemsElement.innerHTML = '<li>No playlist items found.</li>';
-            return;
-          }
-          data.items.forEach((item, index) => {
-            const videoId = item.snippet.resourceId.videoId;
-            const title = item.snippet.title;
-            const thumbnail = item.snippet.thumbnails.medium ? item.snippet.thumbnails.medium.url : item.snippet.thumbnails.default.url;
-            currentPlaylistItems.push({ videoId, title, thumbnail });
-            const li = document.createElement('li');
-            li.classList.add('video-item');
-            li.setAttribute('data-index', index);
-            li.innerHTML = `<img src="${thumbnail}" alt="${title}"><span>${title}</span>`;
-            li.addEventListener('click', () => {
-              document.querySelectorAll('.video-item').forEach(el => el.classList.remove('active'));
-              li.classList.add('active');
-              cueVideo(videoId, thumbnail);
-            });
-            playlistItemsElement.appendChild(li);
-            if (index === 0) {
-              li.classList.add('active');
-              cueVideo(videoId, thumbnail);
-            }
-          });
-        })
-        .catch(error => {
-          console.error('Error fetching playlist items', error);
-          loadingIndicator.style.display = 'none';
-          playlistItemsElement.innerHTML = `<li>Error loading playlist items: ${error.message}</li>`;
-        });
-    }
-    
-    function selectPlaylist(button) {
-      plButtons.forEach(btn => btn.classList.remove('active'));
-      button.classList.add('active');
-      const playlistId = button.getAttribute('data-playlist');
-      loadPlaylistItems(playlistId);
-    }
-    
-    plButtons.forEach(button => {
-      button.addEventListener('click', () => { selectPlaylist(button); });
-    });
-    
-    // --- Utility Panel Functions ---
-    let currentFontSize = 16;
-    document.getElementById('decreaseText').addEventListener('click', () => {
-      currentFontSize = Math.max(12, currentFontSize - 2);
-      document.body.style.fontSize = currentFontSize + 'px';
-    });
-    document.getElementById('increaseText').addEventListener('click', () => {
-      currentFontSize += 2;
-      document.body.style.fontSize = currentFontSize + 'px';
-    });
-    document.getElementById('reloadPage').addEventListener('click', () => {
-      location.reload();
-    });
-    
-    // --- Playback Controls Functions ---
-    document.getElementById('rewindBtn').addEventListener('click', () => {
-      if (player && typeof player.getCurrentTime === 'function') {
-        const currentTime = player.getCurrentTime();
-        player.seekTo(Math.max(0, currentTime - 10), true);
-      }
-    });
-    document.getElementById('playPauseBtn').addEventListener('click', () => {
-      if (player) {
-        const state = player.getPlayerState();
-        if (state === YT.PlayerState.PLAYING) {
-          player.pauseVideo();
-        } else {
-          player.playVideo();
-        }
-        updatePlayPauseButton();
-      }
-    });
-    document.getElementById('skipBtn').addEventListener('click', () => {
-      const activeItem = document.querySelector('.video-item.active');
-      if (activeItem) {
-        let index = parseInt(activeItem.getAttribute('data-index'));
-        index = (index + 1) % currentPlaylistItems.length;
-        const nextItem = document.querySelector(`.video-item[data-index="${index}"]`);
-        if (nextItem) { nextItem.click(); }
-      }
-    });
-    
-    // --- Auto-Reload on Inactivity ---
-    let reloadTimeout = null;
-    let periodicReloadInterval = null;
-    function resetActivityTimer() {
-      if (reloadTimeout) clearTimeout(reloadTimeout);
-      if (periodicReloadInterval) {
-        clearInterval(periodicReloadInterval);
-        periodicReloadInterval = null;
-      }
-      reloadTimeout = setTimeout(() => {
-        location.reload();
-        periodicReloadInterval = setInterval(() => { location.reload(); }, 60 * 60 * 1000);
-      }, 15 * 60 * 1000);
-    }
-    document.addEventListener('click', resetActivityTimer);
-    document.addEventListener('touchstart', resetActivityTimer);
-    resetActivityTimer();
-    // --- End Auto-Reload ---
-    
-    // Initialize default playlist ("Cardio HIIT") on window load
-    window.addEventListener('load', () => { selectPlaylist(plButtons[2]); });
-  </script>
+
+  <script src="scripts.js"></script>
 </body>
 </html>
