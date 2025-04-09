@@ -3,15 +3,15 @@
     "title": "Barre",
     "id": "PLRdkgOpCgKLCHW0LepxgvtZhCPAKpA_ph",
     "visible": false,
-    "default": true
+    "default": false
   },
   {
     "title": "Full Body",
     "id": "PLRdkgOpCgKLAMNCxMO2C1_UqUJWOxhfFG",
-    "default": false
+    "default": true
   },
   {
-    "title": "Cardio HIIT supreme 2",
+    "title": "Cardio HIIT",
     "id": "PLRdkgOpCgKLDpQ0yMrjs_UG0YgYkR7vKl",
     "default": false
   }
