@@ -1,15 +1,65 @@
 document.addEventListener('DOMContentLoaded', function () {
-  const token = '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'; // <-- Insert your GitHub token here
-  const filePath = 'playlists.json';
-  const repo = 'wpddputziger/hfc-kiosk';
+  // OAuth2 GitHub details (replace with your actual values)
+  const clientId = 'Ov23liJNJhwGOI4gLxrC';  // Replace with your GitHub OAuth Client ID
+  const redirectUri = 'https://wpddputziger.github.io/hfc-kiosk/callback';  // Replace with your redirect URI
+
   let playlists = [];
 
+  // Redirect user to GitHub OAuth login page
+  function redirectToGitHubOAuth() {
+    const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=repo`;
+    window.location.href = authUrl;  // Redirect to GitHub OAuth page
+  }
+
+  // Exchange the authorization code for the access token
+  async function exchangeCodeForToken(code) {
+    const response = await fetch('/exchange_code_for_token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ code }),
+    });
+
+    const data = await response.json();
+    const accessToken = data.access_token;  // Store this token securely
+    localStorage.setItem('github_access_token', accessToken);  // Store the token in localStorage
+
+    fetchPlaylists();  // After obtaining the token, fetch playlists
+  }
+
+  // Check if GitHub redirected with the authorization code
+  if (window.location.search.includes('code=')) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    exchangeCodeForToken(code);  // Exchange the code for a token
+  }
+
+  // Fetch playlists from GitHub
   async function fetchPlaylists() {
-    const res = await fetch(filePath);
-    playlists = await res.json();
+    const token = localStorage.getItem('github_access_token');
+    if (!token) {
+      console.error('No access token found!');
+      return;
+    }
+
+    const apiUrl = `https://api.github.com/repos/wpddputziger/hfc-kiosk/contents/playlists.json`;
+
+    const getRes = await fetch(apiUrl, {
+      headers: { 'Authorization': `Bearer ${token}`, Accept: 'application/vnd.github+json' }
+    });
+    const data = await getRes.json();
+    if (getRes.status !== 200) {
+      console.error('Error fetching playlists:', data);
+      alert('Error fetching playlists: ' + data.message);
+      return;
+    }
+
+    playlists = await data;
     renderForm();
   }
 
+  // Render playlist form on the page
   function renderForm() {
     const container = document.getElementById('playlistContainer');
     container.innerHTML = '';
@@ -30,10 +80,12 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  // Update playlist field
   function updateField(index, field, value) {
     playlists[index][field] = value;
   }
 
+  // Set default playlist
   function setDefault(index, isDefault) {
     if (isDefault) {
       playlists.forEach((p, i) => p.default = (i === index));
@@ -41,6 +93,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
+  // Add new playlist
   function addEntry() {
     if (playlists.length >= 12) return alert('Maximum of 12 playlists allowed.');
     const url = prompt('Enter YouTube Playlist URL:');
@@ -57,6 +110,7 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   }
 
+  // Delete playlist entry
   function deleteEntry(index) {
     if (confirm('Delete this playlist?')) {
       playlists.splice(index, 1);
@@ -64,6 +118,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
+  // Download JSON of playlists
   function downloadJSON() {
     const blob = new Blob([JSON.stringify(playlists, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -74,33 +129,24 @@ document.addEventListener('DOMContentLoaded', function () {
     URL.revokeObjectURL(url);
   }
 
+  // Commit the changes to GitHub
   async function commitToGitHub() {
-    const apiUrl = `https://api.github.com/repos/${repo}/contents/${filePath}`;
+    const token = localStorage.getItem('github_access_token');
+    if (!token) {
+      alert('You need to log in with GitHub first!');
+      return;
+    }
 
-    // Step 1: Fetch the current file details to get the sha
-    console.log('Fetching file data...');
+    const apiUrl = `https://api.github.com/repos/wpddputziger/hfc-kiosk/contents/playlists.json`;
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(playlists, null, 2))));
+
     const getRes = await fetch(apiUrl, {
       headers: { 'Authorization': `Bearer ${token}`, Accept: 'application/vnd.github+json' }
     });
 
-    // Log the response to check for issues
     const data = await getRes.json();
-    console.log('Response data from GitHub:', data);
-
-    if (getRes.status !== 200) {
-      console.error('Error fetching file data:', data);
-      alert(`Error fetching file data: ${data.message}`);
-      return;
-    }
-
     const sha = data.sha;  // Get the sha for the existing file
-    console.log('SHA fetched:', sha);
 
-    // Step 2: Base64 encode the content
-    const content = btoa(unescape(encodeURIComponent(JSON.stringify(playlists, null, 2))));
-    console.log('Encoded content:', content);
-
-    // Step 3: Commit the changes
     const commitRes = await fetch(apiUrl, {
       method: 'PUT',
       headers: {
@@ -116,15 +162,16 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     const commitData = await commitRes.json();
-    console.log('Commit Response:', commitData);
-
     if (commitRes.ok) {
       alert('Successfully committed to GitHub!');
     } else {
-      console.error('Commit Error:', commitData);
-      alert(`Failed to commit changes: ${commitData.message || commitData.errors}`);
+      alert('Failed to commit changes: ' + commitData.message);
     }
   }
 
+  // Event listener for GitHub login button
+  document.getElementById('githubLoginBtn').addEventListener('click', redirectToGitHubOAuth);
+
+  // Fetch playlists when the page loads
   fetchPlaylists();
 });
