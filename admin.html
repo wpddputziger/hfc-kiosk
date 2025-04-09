@@ -55,6 +55,7 @@
       margin-top: 50px;
       text-align: center;
     }
+
   </style>
 </head>
 <body>
@@ -64,6 +65,9 @@
     <p>Please enter the admin password:</p>
     <input type="password" id="passwordInput" placeholder="Enter password" />
     <button onclick="checkPassword()">Enter Password</button>
+    <footer>
+      <p>Version: 1.1.23</p>  <!-- Version info on login screen -->
+    </footer>
   </div>
 
   <!-- Admin interface (will be shown after password is correct) -->
@@ -85,5 +89,30 @@
   </div>
 
   <script src="admin.js"></script>
+  <script>
+    // Function to check the password
+    function checkPassword() {
+      const password = document.getElementById('passwordInput').value;
+      const adminPassword = 'yourpassword';  // Change to your desired password
+
+      if (password === adminPassword) {
+        // Show the admin page and hide the password prompt
+        document.getElementById('adminPage').style.display = 'block';
+        document.getElementById('passwordPrompt').style.display = 'none';
+
+        // Optionally, fetch playlists or initialize other admin features
+        fetchPlaylists();
+      } else {
+        alert('Incorrect password!');
+      }
+    }
+
+    // Allow user to hit "Enter" key to submit password
+    document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        checkPassword();  // Trigger password check on Enter key press
+      }
+    });
+  </script>
 </body>
 </html>
