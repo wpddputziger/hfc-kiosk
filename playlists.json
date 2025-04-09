@@ -1,7 +1,8 @@
 [
   {
     "title": "Barre",
-    "id": "PLRdkgOpCgKLCHW0LepxgvtZhCPAKpA_ph"
+    "id": "PLRdkgOpCgKLCHW0LepxgvtZhCPAKpA_ph",
+    "visible": false
   },
   {
     "title": "Full Body",
