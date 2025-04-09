@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>HFC Kiosk Admin</title>
+  <title>HFC Kiosk Admin CMS</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body {
@@ -17,7 +17,6 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 20px;
       margin-bottom: 30px;
     }
     .logo-title {
@@ -39,30 +38,26 @@
       padding: 15px;
       margin-bottom: 20px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      position: relative;
     }
     .playlist-entry label {
-      display: block;
-      margin-bottom: 4px;
       font-weight: bold;
     }
     .playlist-entry input[type="text"] {
-      width: calc(100% - 20px);
+      width: 100%;
       padding: 8px;
-      margin-bottom: 10px;
+      margin: 6px 0 10px;
       border: 1px solid #ccc;
       border-radius: 4px;
     }
-    .playlist-entry .checkboxes {
+    .controls {
       display: flex;
+      justify-content: space-between;
       align-items: center;
-      gap: 20px;
-      margin-top: 10px;
     }
-    .playlist-entry .delete-btn {
-      position: absolute;
-      top: 15px;
-      right: 15px;
+    .controls label {
+      font-weight: normal;
+    }
+    .controls .delete-btn {
       background-color: #c10230;
       color: white;
       border: none;
@@ -72,33 +67,41 @@
     }
     button {
       padding: 10px 20px;
-      margin-top: 15px;
-      margin-right: 10px;
+      margin: 10px 10px 0 0;
       font-size: 1em;
       border: none;
       border-radius: 4px;
       cursor: pointer;
     }
-    #addBtn {
-      background-color: #0099A8;
-      color: white;
+    #addBtn { background-color: #0099A8; color: white; }
+    #saveBtn { background-color: #DB8F27; color: white; }
+    #logoutBtn { background-color: #606261; color: white; float: right; }
+    #downloadBtn { background-color: #789904; color: white; }
+    #loginOverlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(255,255,255,0.95);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
     }
-    #downloadBtn {
-      background-color: #789904;
-      color: white;
-    }
-    #saveBtn {
-      background-color: #DB8F27;
-      color: white;
-    }
-    #logoutBtn {
-      background-color: #606261;
-      color: white;
-      margin-left: auto;
+    #loginOverlay input {
+      padding: 10px;
+      margin: 10px;
+      width: 300px;
+      font-size: 1em;
     }
   </style>
 </head>
 <body>
+  <div id="loginOverlay">
+    <h2>Enter GitHub Token</h2>
+    <input type="password" id="tokenInput" placeholder="Paste your GitHub token">
+    <button onclick="submitToken()">Login</button>
+  </div>
+
   <header>
     <div class="logo-title">
       <img src="https://www.wheelinghealthfitness.center/wp-content/themes/wpd-hfc-auto/assets/media/logo.svg" alt="HFC Logo" />
@@ -108,23 +111,19 @@
   </header>
 
   <div id="playlistContainer"></div>
-
   <button id="addBtn" onclick="addEntry()">+ Add Playlist</button>
-  <button id="saveBtn" onclick="saveChanges()">Save / Commit Changes</button>
+  <button id="saveBtn" onclick="commitToGitHub()">Save to GitHub</button>
   <button id="downloadBtn" onclick="downloadJSON()">Download JSON</button>
 
   <script>
     let playlists = [];
+    let token = '';
 
-    fetch('playlists.json')
-      .then(res => res.json())
-      .then(data => {
-        playlists = data;
-        renderForm();
-      })
-      .catch(err => {
-        document.getElementById('playlistContainer').innerHTML = '<p style="color:red;">Failed to load playlists.json</p>';
-      });
+    async function fetchPlaylists() {
+      const res = await fetch('playlists.json');
+      playlists = await res.json();
+      renderForm();
+    }
 
     function renderForm() {
       const container = document.getElementById('playlistContainer');
@@ -137,12 +136,11 @@
           <input type="text" value="${pl.title}" onchange="updateField(${index}, 'title', this.value)">
           <label>Playlist ID</label>
           <input type="text" value="${pl.id}" onchange="updateField(${index}, 'id', this.value)">
-          <div class="checkboxes">
+          <div class="controls">
             <label><input type="checkbox" name="default" ${pl.default ? 'checked' : ''} onchange="setDefault(${index}, this.checked)"> Default</label>
             <label><input type="checkbox" ${pl.visible !== false ? 'checked' : ''} onchange="updateField(${index}, 'visible', this.checked)"> Visible</label>
-          </div>
-          <button class="delete-btn" onclick="deleteEntry(${index})">Delete</button>
-        `;
+            <button class="delete-btn" onclick="deleteEntry(${index})">Delete</button>
+          </div>`;
         container.appendChild(div);
       });
     }
@@ -154,7 +152,7 @@
     function setDefault(index, isDefault) {
       if (isDefault) {
         playlists.forEach((p, i) => p.default = (i === index));
-        renderForm(); // re-render to update checkboxes
+        renderForm();
       }
     }
 
@@ -170,8 +168,19 @@
       }
     }
 
-    function saveChanges() {
-      alert("Changes applied in memory. Use 'Download JSON' and commit via GitHub to go live.");
+    function logout() {
+      token = '';
+      document.getElementById('loginOverlay').style.display = 'flex';
+    }
+
+    function submitToken() {
+      token = document.getElementById('tokenInput').value.trim();
+      if (token.length > 30) {
+        document.getElementById('loginOverlay').style.display = 'none';
+        fetchPlaylists();
+      } else {
+        alert('Invalid token');
+      }
     }
 
     function downloadJSON() {
@@ -184,9 +193,37 @@
       URL.revokeObjectURL(url);
     }
 
-    function logout() {
-      // Future: Clear session
-      window.location.href = 'index.html';
+    async function commitToGitHub() {
+      const filePath = 'playlists.json';
+      const apiUrl = 'https://api.github.com/repos/wpddputziger/hfc-kiosk/contents/' + filePath;
+
+      const getRes = await fetch(apiUrl, {
+        headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json' }
+      });
+      const data = await getRes.json();
+      const sha = data.sha;
+
+      const content = btoa(unescape(encodeURIComponent(JSON.stringify(playlists, null, 2))));
+
+      const commitRes = await fetch(apiUrl, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/vnd.github+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: 'Update playlists.json from admin panel',
+          content: content,
+          sha: sha
+        })
+      });
+
+      if (commitRes.ok) {
+        alert('Successfully committed to GitHub!');
+      } else {
+        alert('Failed to commit changes. Check token and permissions.');
+      }
     }
   </script>
 </body>
