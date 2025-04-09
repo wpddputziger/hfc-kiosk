@@ -1,46 +1,33 @@
-// Function to check the password
+/* admin.js | v1.1.25 */
+
+/**
+ * checkPassword
+ * Minimal approach: If the entered password matches the one we define here,
+ * then redirect to the admin console. Otherwise, show an alert.
+ */
 function checkPassword() {
-  const enteredPassword = document.getElementById('passwordInput').value.trim();
-  const adminPassword = '12345';  // Replace with correct password
+  const enteredPassword = document.getElementById('passwordInput')?.value.trim() || '';
+  const adminPassword = '12345'; // <-- Put your real password here
 
   if (enteredPassword === adminPassword) {
-    // Set login status in localStorage
-    localStorage.setItem('isLoggedIn', 'true');
-    // Redirect to admin console page after setting the login flag
+    // Minimal approach: redirect if correct
     window.location.href = 'admin-console.html';
   } else {
     alert('Incorrect password!');
   }
 }
 
-// Protect the admin page (admin-console.html) by checking if the user is logged in
-if (window.location.pathname === '/admin-console.html') {
-  if (!localStorage.getItem('isLoggedIn')) {
-    // If not logged in, redirect to login page
-    window.location.href = 'admin-login.html';
-  }
-}
-
-// Function to handle logout
+/**
+ * logout
+ * In our minimal approach, we simply redirect back to the login page.
+ */
 function logout() {
-  localStorage.removeItem('isLoggedIn');  // Clear login status
-  window.location.href = 'admin-login.html';  // Redirect to login page
+  // Minimal approach: no session or localStorage, so just redirect.
+  window.location.href = 'admin-login.html';
 }
 
-// Example function to add a playlist entry (for testing)
-function addEntry() {
-  console.log('Adding new playlist...');
-  // Logic for adding a new playlist goes here
-}
-
-// Example function to commit data to GitHub (for testing)
-function commitToGitHub() {
-  console.log('Saving to GitHub...');
-  // GitHub commit logic goes here
-}
-
-// Example function to download JSON (for testing)
-function downloadJSON() {
-  console.log('Downloading JSON...');
-  // Logic to download playlists goes here
-}
+/* 
+  If you want to do additional admin console functions (like 
+  fetching or displaying playlists), add them here. 
+  But let's keep it minimal for now.
+*/
